@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Target, TrendingDown, TrendingUp, Leaf } from "lucide-react";
+import { Target, TrendingDown, Leaf, Trash2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
-const monthlyData = [
+const initialMonthlyData = [
   { month: "Jan", transport: 120, waste: 45, energy: 180 },
   { month: "Feb", transport: 100, waste: 40, energy: 160 },
   { month: "Mar", transport: 90, waste: 35, energy: 150 },
@@ -13,21 +16,40 @@ const monthlyData = [
   { month: "Jun", transport: 75, waste: 30, energy: 120 },
 ];
 
-const categoryData = [
+const initialCategoryData = [
   { name: "Transportation", value: 75, color: "hsl(199, 89%, 48%)" },
   { name: "Waste", value: 30, color: "hsl(38, 92%, 50%)" },
   { name: "Energy", value: 120, color: "hsl(142, 55%, 35%)" },
 ];
 
 export default function Dashboard() {
+  const [monthlyData, setMonthlyData] = useState(initialMonthlyData);
+  const [categoryData, setCategoryData] = useState(initialCategoryData);
+  const [current, setCurrent] = useState(225);
+  
   const target = 300;
-  const current = 225;
   const progress = (current / target) * 100;
+
+  const handleClearEmissions = () => {
+    setMonthlyData(initialMonthlyData.map(item => ({ ...item, transport: 0, waste: 0, energy: 0 })));
+    setCategoryData(initialCategoryData.map(item => ({ ...item, value: 0 })));
+    setCurrent(0);
+    toast({
+      title: "Emissions Cleared",
+      description: "All your emission data has been reset.",
+    });
+  };
 
   return (
     <Layout>
       <div className="container py-12">
-        <h1 className="text-3xl font-display font-bold mb-8">Your Dashboard</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-display font-bold">Your Dashboard</h1>
+          <Button variant="destructive" onClick={handleClearEmissions}>
+            <Trash2 className="h-4 w-4 mr-2" />
+            Clear All Emissions
+          </Button>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
@@ -57,7 +79,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-primary-foreground/80 text-sm">Progress</p>
-                  <p className="text-2xl font-bold">{Math.round(100 - progress)}% Under Target</p>
+                  <p className="text-2xl font-bold">{current === 0 ? "100%" : `${Math.round(100 - progress)}%`} Under Target</p>
                 </div>
                 <Leaf className="h-8 w-8" />
               </div>
