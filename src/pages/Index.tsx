@@ -39,19 +39,6 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-12 border-y bg-muted/30">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[{ value: "2.5M+", label: "Tons CO₂ Tracked", icon: Globe }, { value: "150K+", label: "Active Users", icon: Users }, { value: "500K+", label: "Trees Saved", icon: TreePine }].map((stat, i) => (
-              <div key={i} className="flex items-center justify-center gap-4">
-                <div className="p-3 rounded-xl gradient-eco"><stat.icon className="h-6 w-6 text-primary-foreground" /></div>
-                <div><p className="text-3xl font-display font-bold">{stat.value}</p><p className="text-muted-foreground">{stat.label}</p></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="py-20">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-16">
