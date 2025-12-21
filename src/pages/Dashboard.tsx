@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -6,34 +5,27 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Target, TrendingDown, Leaf, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
-const initialMonthlyData = [
-  { month: "Jan", transport: 120, waste: 45, energy: 180 },
-  { month: "Feb", transport: 100, waste: 40, energy: 160 },
-  { month: "Mar", transport: 90, waste: 35, energy: 150 },
-  { month: "Apr", transport: 85, waste: 38, energy: 140 },
-  { month: "May", transport: 80, waste: 32, energy: 130 },
-  { month: "Jun", transport: 75, waste: 30, energy: 120 },
-];
-
-const initialCategoryData = [
-  { name: "Transportation", value: 75, color: "hsl(199, 89%, 48%)" },
-  { name: "Waste", value: 30, color: "hsl(38, 92%, 50%)" },
-  { name: "Energy", value: 120, color: "hsl(142, 55%, 35%)" },
-];
+import { useEmissions } from "@/context/EmissionsContext";
 
 export default function Dashboard() {
-  const [monthlyData, setMonthlyData] = useState(initialMonthlyData);
-  const [categoryData, setCategoryData] = useState(initialCategoryData);
-  const [current, setCurrent] = useState(225);
+  const { emissions, clearAllEmissions, totalEmissions } = useEmissions();
   
   const target = 300;
-  const progress = (current / target) * 100;
+  const current = Math.round(totalEmissions * 100) / 100;
+  const progress = target > 0 ? (current / target) * 100 : 0;
+
+  const categoryData = [
+    { name: "Transportation", value: emissions.transport, color: "hsl(199, 89%, 48%)" },
+    { name: "Waste", value: emissions.waste, color: "hsl(38, 92%, 50%)" },
+    { name: "Energy", value: emissions.energy, color: "hsl(142, 55%, 35%)" },
+  ];
+
+  const monthlyData = [
+    { month: "Current", transport: emissions.transport, waste: emissions.waste, energy: emissions.energy },
+  ];
 
   const handleClearEmissions = () => {
-    setMonthlyData(initialMonthlyData.map(item => ({ ...item, transport: 0, waste: 0, energy: 0 })));
-    setCategoryData(initialCategoryData.map(item => ({ ...item, value: 0 })));
-    setCurrent(0);
+    clearAllEmissions();
     toast({
       title: "Emissions Cleared",
       description: "All your emission data has been reset.",
