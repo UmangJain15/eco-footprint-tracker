@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calculator, Trash2, Lightbulb } from "lucide-react";
+import { useEmissions } from "@/context/EmissionsContext";
+import { toast } from "@/hooks/use-toast";
 
 const wasteCategories = [
   { name: "Plastic", factor: 6.0, tip: "Reduce single-use plastics and recycle" },
@@ -16,6 +18,7 @@ const wasteCategories = [
 export function WasteCalculator() {
   const [waste, setWaste] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, number> | null>(null);
+  const { setWasteEmissions } = useEmissions();
 
   const calculateEmissions = () => {
     const emissions: Record<string, number> = {};
@@ -23,6 +26,12 @@ export function WasteCalculator() {
       emissions[cat.name] = Math.round((parseFloat(waste[cat.name] || "0") * cat.factor) * 100) / 100;
     });
     setResults(emissions);
+    const total = Object.values(emissions).reduce((a, b) => a + b, 0);
+    setWasteEmissions(Math.round(total * 100) / 100);
+    toast({
+      title: "Waste Emissions Saved",
+      description: `${Math.round(total * 100) / 100} kg CO₂ added to your dashboard.`,
+    });
   };
 
   const total = results ? Object.values(results).reduce((a, b) => a + b, 0) : 0;

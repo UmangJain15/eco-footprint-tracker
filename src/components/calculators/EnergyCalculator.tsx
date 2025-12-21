@@ -5,20 +5,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Calculator, Zap, Lightbulb } from "lucide-react";
+import { useEmissions } from "@/context/EmissionsContext";
+import { toast } from "@/hooks/use-toast";
 
 export function EnergyCalculator() {
   const [electricity, setElectricity] = useState("");
   const [lpg, setLpg] = useState("");
   const [renewable, setRenewable] = useState(false);
   const [result, setResult] = useState<{ electricity: number; lpg: number; total: number } | null>(null);
+  const { setEnergyEmissions } = useEmissions();
 
   const calculateEmissions = () => {
     const elecEmission = parseFloat(electricity || "0") * 0.82 * (renewable ? 0.3 : 1);
     const lpgEmission = parseFloat(lpg || "0") * 2.98;
+    const total = Math.round((elecEmission + lpgEmission) * 100) / 100;
     setResult({
       electricity: Math.round(elecEmission * 100) / 100,
       lpg: Math.round(lpgEmission * 100) / 100,
-      total: Math.round((elecEmission + lpgEmission) * 100) / 100,
+      total,
+    });
+    setEnergyEmissions(total);
+    toast({
+      title: "Energy Emissions Saved",
+      description: `${total} kg CO₂ added to your dashboard.`,
     });
   };
 

@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, Calculator, Car } from "lucide-react";
+import { useEmissions } from "@/context/EmissionsContext";
+import { toast } from "@/hooks/use-toast";
 
 const vehicleTypes = ["Car", "Bike", "Bus", "Train", "Motorcycle", "Airplane"];
 const fuelTypes = ["Petrol", "Diesel", "Electric", "CNG", "Hybrid"];
@@ -26,6 +28,7 @@ export function TransportationCalculator() {
   const [lastService, setLastService] = useState("");
   const [distance, setDistance] = useState("");
   const [result, setResult] = useState<number | null>(null);
+  const { setTransportEmissions } = useEmissions();
 
   const isOldVehicle = parseInt(vehicleAge) >= 15;
 
@@ -34,7 +37,13 @@ export function TransportationCalculator() {
     const factor = emissionFactors[vehicleType]?.[fuelType] || 0.2;
     const ageFactor = isOldVehicle ? 1.5 : 1 + (parseInt(vehicleAge) || 0) * 0.02;
     const emission = parseFloat(distance) * factor * ageFactor;
-    setResult(Math.round(emission * 100) / 100);
+    const roundedEmission = Math.round(emission * 100) / 100;
+    setResult(roundedEmission);
+    setTransportEmissions(roundedEmission);
+    toast({
+      title: "Transport Emissions Saved",
+      description: `${roundedEmission} kg CO₂ added to your dashboard.`,
+    });
   };
 
   return (
