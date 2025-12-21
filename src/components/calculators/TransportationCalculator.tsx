@@ -33,7 +33,14 @@ export function TransportationCalculator() {
   const isOldVehicle = parseInt(vehicleAge) >= 15;
 
   const calculateEmissions = () => {
-    if (!vehicleType || !fuelType || !distance) return;
+    if (!vehicleType || !fuelType || !distance) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill in vehicle type, fuel type, and distance traveled.",
+        variant: "destructive",
+      });
+      return;
+    }
     const factor = emissionFactors[vehicleType]?.[fuelType] || 0.2;
     const ageFactor = isOldVehicle ? 1.5 : 1 + (parseInt(vehicleAge) || 0) * 0.02;
     const emission = parseFloat(distance) * factor * ageFactor;
