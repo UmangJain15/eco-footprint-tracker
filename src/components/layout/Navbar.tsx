@@ -35,7 +35,7 @@ export function Navbar() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-eco shadow-eco transition-transform group-hover:scale-105">
             <Leaf className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-xl font-bold text-gradient-eco">
+          <span className="font-display text-xl font-bold text-primary">
             Eco Tracker
           </span>
         </Link>

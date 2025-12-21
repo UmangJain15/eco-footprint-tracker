@@ -21,8 +21,8 @@ export default function Index() {
               <Leaf className="h-4 w-4" />
               Start Your Sustainability Journey
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight">
-              Track Your Carbon Footprint. <span className="text-gradient-eco">Protect Our Planet.</span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight text-foreground">
+              Track Your Carbon Footprint. <span className="text-primary">Protect Our Planet.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Monitor your CO₂ emissions from transportation, waste, and energy. Make informed decisions for a sustainable future.

@@ -150,8 +150,10 @@
   }
 
   .text-gradient-eco {
-    @apply bg-clip-text text-transparent;
     background: linear-gradient(135deg, hsl(var(--eco-forest)) 0%, hsl(var(--eco-leaf)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .shadow-eco {
