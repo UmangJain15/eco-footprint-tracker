@@ -13,6 +13,8 @@ interface EmissionsContextType {
   setEnergyEmissions: (value: number) => void;
   clearAllEmissions: () => void;
   totalEmissions: number;
+  monthlyTarget: number;
+  setMonthlyTarget: (value: number) => void;
 }
 
 const EmissionsContext = createContext<EmissionsContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export function EmissionsProvider({ children }: { children: ReactNode }) {
     waste: 0,
     energy: 0,
   });
+  const [monthlyTarget, setMonthlyTarget] = useState(300);
 
   const setTransportEmissions = (value: number) => {
     setEmissions(prev => ({ ...prev, transport: value }));
@@ -50,6 +53,8 @@ export function EmissionsProvider({ children }: { children: ReactNode }) {
       setEnergyEmissions,
       clearAllEmissions,
       totalEmissions,
+      monthlyTarget,
+      setMonthlyTarget,
     }}>
       {children}
     </EmissionsContext.Provider>
