@@ -65,12 +65,12 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="container py-12">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 animate-fade-in">
           <h1 className="text-3xl font-display font-bold">Your Dashboard</h1>
           <div className="flex gap-2">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" className="hover-scale">
                   <Settings className="h-4 w-4 mr-2" />
                   Set Target
                 </Button>
@@ -93,11 +93,11 @@ export default function Dashboard() {
                 </div>
               </DialogContent>
             </Dialog>
-            <Button variant="destructive" onClick={handleClearEmissions}>
+            <Button variant="destructive" onClick={handleClearEmissions} className="hover-scale">
               <Trash2 className="h-4 w-4 mr-2" />
               Clear All
             </Button>
-            <Button variant="secondary" onClick={handleSignOut}>
+            <Button variant="secondary" onClick={handleSignOut} className="hover-scale">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
@@ -105,32 +105,32 @@ export default function Dashboard() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
+          <Card className="hover-scale cursor-pointer transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm">Monthly Target</p>
                   <p className="text-2xl font-bold">{monthlyTarget} kg CO₂</p>
                 </div>
-                <Target className="h-8 w-8 text-primary" />
+                <Target className="h-8 w-8 text-primary transition-transform hover:rotate-12" />
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover-scale cursor-pointer transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm">Current Emissions</p>
                   <p className="text-2xl font-bold">{current} kg CO₂</p>
                 </div>
-                <TrendingDown className="h-8 w-8 text-primary" />
+                <TrendingDown className="h-8 w-8 text-primary transition-transform hover:scale-110" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
+          <Card className="transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <CardHeader><CardTitle>Monthly Emissions Trend</CardTitle></CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -138,23 +138,45 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="transport" fill="hsl(199, 89%, 48%)" name="Transport" />
-                  <Bar dataKey="waste" fill="hsl(38, 92%, 50%)" name="Waste" />
-                  <Bar dataKey="energy" fill="hsl(142, 55%, 35%)" name="Energy" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <Bar dataKey="transport" fill="hsl(199, 89%, 48%)" name="Transport" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="waste" fill="hsl(38, 92%, 50%)" name="Waste" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="energy" fill="hsl(142, 55%, 35%)" name="Energy" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <CardHeader><CardTitle>Emissions by Category</CardTitle></CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="value" label={({ name, value }) => `${name}: ${value}kg`}>
-                    {categoryData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                  <Pie 
+                    data={categoryData} 
+                    cx="50%" 
+                    cy="50%" 
+                    innerRadius={60} 
+                    outerRadius={100} 
+                    dataKey="value" 
+                    label={({ name, value }) => `${name}: ${value}kg`}
+                    animationBegin={0}
+                    animationDuration={800}
+                  >
+                    {categoryData.map((entry, index) => <Cell key={index} fill={entry.color} className="hover:opacity-80 transition-opacity cursor-pointer" />)}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }} 
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
