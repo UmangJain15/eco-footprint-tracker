@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { 
@@ -10,8 +10,11 @@ import {
   BookOpen, 
   Shield, 
   LogIn,
+  LogOut,
   Calculator
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const navLinks = [
   { name: "Home", href: "/", icon: Home },
@@ -24,8 +27,21 @@ const navLinks = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully",
+    });
+    navigate("/");
+    setIsOpen(false);
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -63,15 +79,29 @@ export function Navbar() {
 
         {/* Auth Buttons - Desktop */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" asChild>
-            <Link to="/login">
-              <LogIn className="h-4 w-4 mr-2" />
-              Login
-            </Link>
-          </Button>
-          <Button asChild className="gradient-eco shadow-eco">
-            <Link to="/signup">Sign Up</Link>
-          </Button>
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                {user.email}
+              </span>
+              <Button variant="ghost" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/login">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Login
+                </Link>
+              </Button>
+              <Button asChild className="gradient-eco shadow-eco">
+                <Link to="/signup">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -112,15 +142,27 @@ export function Navbar() {
               </div>
 
               <div className="flex flex-col gap-3 pt-4 border-t">
-                <Button variant="outline" asChild onClick={() => setIsOpen(false)}>
-                  <Link to="/login">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Login
-                  </Link>
-                </Button>
-                <Button asChild className="gradient-eco" onClick={() => setIsOpen(false)}>
-                  <Link to="/signup">Sign Up</Link>
-                </Button>
+                {user ? (
+                  <>
+                    <p className="text-sm text-muted-foreground px-4">{user.email}</p>
+                    <Button variant="outline" onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild onClick={() => setIsOpen(false)}>
+                      <Link to="/login">
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Login
+                      </Link>
+                    </Button>
+                    <Button asChild className="gradient-eco" onClick={() => setIsOpen(false)}>
+                      <Link to="/signup">Sign Up</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </SheetContent>

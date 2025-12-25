@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Layout } from "@/components/layout/Layout";
 import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,6 +17,14 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signIn, user } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -43,11 +52,27 @@ export default function Login() {
 
     setIsLoading(true);
     
-    // Simulate login - in production, this would call an auth API
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const { error } = await signIn(email, password);
+    
+    if (error) {
+      let errorMessage = "An error occurred during login";
+      if (error.message.includes("Invalid login credentials")) {
+        errorMessage = "Invalid email or password";
+      } else if (error.message.includes("Email not confirmed")) {
+        errorMessage = "Please confirm your email before logging in";
+      }
+      
+      toast({
+        title: "Login failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
     
     toast({
-      title: "Welcome back! 🌱",
+      title: "Welcome back!",
       description: "Successfully logged in to Eco Tracker",
     });
     
@@ -123,13 +148,6 @@ export default function Login() {
                   {errors.password && (
                     <p className="text-sm text-destructive">{errors.password}</p>
                   )}
-                </div>
-
-                {/* Forgot Password */}
-                <div className="text-right">
-                  <a href="#" className="text-sm text-primary hover:underline">
-                    Forgot password?
-                  </a>
                 </div>
 
                 {/* Submit */}

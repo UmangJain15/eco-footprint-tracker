@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Layout } from "@/components/layout/Layout";
-import { Leaf, Mail, Lock, Eye, EyeOff, User, ArrowRight, Check } from "lucide-react";
+import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -21,13 +21,14 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signUp, user } = useAuth();
 
-  const validateUsername = (value: string) => {
-    if (!value.trim()) return "Username is required";
-    if (!/^[a-zA-Z]+$/.test(value)) return "Username must contain only alphabets (no numbers or special characters)";
-    if (value.length < 3) return "Username must be at least 3 characters";
-    return "";
-  };
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const validateEmail = (value: string) => {
     if (!value.trim()) return "Email is required";
@@ -46,9 +47,6 @@ export default function Signup() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
-    const usernameError = validateUsername(formData.username);
-    if (usernameError) newErrors.username = usernameError;
 
     const emailError = validateEmail(formData.email);
     if (emailError) newErrors.email = emailError;
@@ -78,11 +76,25 @@ export default function Signup() {
 
     setIsLoading(true);
     
-    // Simulate signup - in production, this would call an auth API
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const { error } = await signUp(formData.email, formData.password);
+    
+    if (error) {
+      let errorMessage = "An error occurred during signup";
+      if (error.message.includes("User already registered")) {
+        errorMessage = "An account with this email already exists";
+      }
+      
+      toast({
+        title: "Signup failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
     
     toast({
-      title: "Account created! 🌱",
+      title: "Account created!",
       description: "Welcome to Eco Tracker. Let's start protecting our planet!",
     });
     
@@ -116,26 +128,6 @@ export default function Signup() {
 
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Username */}
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="username"
-                      type="text"
-                      placeholder="JohnDoe"
-                      value={formData.username}
-                      onChange={(e) => handleChange("username", e.target.value)}
-                      className={`pl-10 ${errors.username ? "border-destructive" : ""}`}
-                    />
-                  </div>
-                  {errors.username && (
-                    <p className="text-sm text-destructive">{errors.username}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">Only alphabets allowed (no numbers or special characters)</p>
-                </div>
-
                 {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
