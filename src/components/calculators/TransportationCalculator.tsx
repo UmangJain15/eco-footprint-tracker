@@ -1,13 +1,17 @@
 import { useState } from "react";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, Calculator, Car } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { AlertTriangle, Calculator, Car, CalendarIcon } from "lucide-react";
 import { useEmissions } from "@/context/EmissionsContext";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 const vehicleTypes = ["Car", "Bike", "Bus", "Train", "Motorcycle", "Airplane"];
 const fuelTypes = ["Petrol", "Diesel", "Electric", "CNG", "Hybrid"];
@@ -25,7 +29,7 @@ export function TransportationCalculator() {
   const [vehicleType, setVehicleType] = useState("");
   const [fuelType, setFuelType] = useState("");
   const [vehicleAge, setVehicleAge] = useState("");
-  const [lastService, setLastService] = useState("");
+  const [lastService, setLastService] = useState<Date | undefined>();
   const [distance, setDistance] = useState("");
   const [result, setResult] = useState<number | null>(null);
   const { setTransportEmissions } = useEmissions();
@@ -90,7 +94,30 @@ export function TransportationCalculator() {
           </div>
           <div className="space-y-2">
             <Label>Last Service Date</Label>
-            <Input type="month" value={lastService} onChange={(e) => setLastService(e.target.value)} />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !lastService && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {lastService ? format(lastService, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={lastService}
+                  onSelect={setLastService}
+                  disabled={(date) => date > new Date()}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="space-y-2 md:col-span-2">
             <Label>Distance Traveled (km/month)</Label>
