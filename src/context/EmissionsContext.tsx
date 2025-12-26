@@ -83,7 +83,8 @@ export function EmissionsProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    // Use UTC to avoid timezone issues
+    const firstDayOfMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
 
     const { data, error } = await supabase
       .from('monthly_targets')
@@ -171,7 +172,8 @@ export function EmissionsProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    // Use UTC to avoid timezone issues
+    const firstDayOfMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
 
     const { data: existing } = await supabase
       .from('monthly_targets')
