@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,11 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [newTarget, setNewTarget] = useState(monthlyTarget.toString());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Sync newTarget when monthlyTarget changes (e.g., from database)
+  useEffect(() => {
+    setNewTarget(monthlyTarget.toString());
+  }, [monthlyTarget]);
   
   const current = Math.round(totalEmissions * 100) / 100;
   const progressPercent = Math.min((current / monthlyTarget) * 100, 100);
