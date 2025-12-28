@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Layout } from "@/components/layout/Layout";
-import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight, Check } from "lucide-react";
+import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight, Check, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -30,6 +31,12 @@ export default function Signup() {
     }
   }, [user, navigate]);
 
+  const validateName = (value: string) => {
+    if (!value.trim()) return "Name is required";
+    if (value.trim().length < 2) return "Name must be at least 2 characters";
+    return "";
+  };
+
   const validateEmail = (value: string) => {
     if (!value.trim()) return "Email is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Please enter a valid email address";
@@ -47,6 +54,9 @@ export default function Signup() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+
+    const nameError = validateName(formData.name);
+    if (nameError) newErrors.name = nameError;
 
     const emailError = validateEmail(formData.email);
     if (emailError) newErrors.email = emailError;
@@ -76,7 +86,7 @@ export default function Signup() {
 
     setIsLoading(true);
     
-    const { error } = await signUp(formData.email, formData.password);
+    const { error } = await signUp(formData.email, formData.password, formData.name);
     
     if (error) {
       let errorMessage = "An error occurred during signup";
@@ -128,6 +138,25 @@ export default function Signup() {
 
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) => handleChange("name", e.target.value)}
+                      className={`pl-10 ${errors.name ? "border-destructive" : ""}`}
+                    />
+                  </div>
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name}</p>
+                  )}
+                </div>
+
                 {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>

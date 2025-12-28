@@ -8,10 +8,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Target, TrendingDown, Trash2, LogOut, Settings, Leaf, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useEmissions } from "@/context/EmissionsContext";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const { emissions, clearAllEmissions, totalEmissions, monthlyTarget, setMonthlyTarget } = useEmissions();
+  const { userName, signOut } = useAuth();
   const navigate = useNavigate();
   const [newTarget, setNewTarget] = useState(monthlyTarget.toString());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -23,18 +25,12 @@ export default function Dashboard() {
   
   const current = Math.round(totalEmissions * 100) / 100;
   const progressPercent = Math.min((current / monthlyTarget) * 100, 100);
-  const remaining = Math.max(monthlyTarget - current, 0);
   const isOverTarget = current > monthlyTarget;
 
   const categoryData = [
     { name: "Transportation", value: emissions.transport, color: "hsl(199, 89%, 48%)" },
     { name: "Waste", value: emissions.waste, color: "hsl(38, 92%, 50%)" },
     { name: "Energy", value: emissions.energy, color: "hsl(142, 55%, 35%)" },
-  ];
-
-  const comparisonData = [
-    { name: "Current", value: current, fill: isOverTarget ? "hsl(0, 84%, 60%)" : "hsl(142, 55%, 35%)" },
-    { name: "Target", value: monthlyTarget, fill: "hsl(199, 89%, 48%)" },
   ];
 
   const monthlyData = [
@@ -49,7 +45,8 @@ export default function Dashboard() {
     });
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    await signOut();
     toast({
       title: "Signed Out",
       description: "You have been signed out successfully.",
@@ -79,7 +76,12 @@ export default function Dashboard() {
     <Layout>
       <div className="container py-12">
         <div className="flex items-center justify-between mb-8 animate-fade-in">
-          <h1 className="text-3xl font-display font-bold">Your Dashboard</h1>
+          <div>
+            <h1 className="text-3xl font-display font-bold">
+              Welcome{userName ? `, ${userName}` : ''}!
+            </h1>
+            <p className="text-muted-foreground mt-1">Track your carbon footprint</p>
+          </div>
           <div className="flex gap-2">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
@@ -117,49 +119,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Progress Bar Card */}
-        <Card className="mb-8 animate-fade-in overflow-hidden">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                {isOverTarget ? (
-                  <AlertTriangle className="h-5 w-5 text-destructive" />
-                ) : (
-                  <Leaf className="h-5 w-5 text-primary" />
-                )}
-                <span className="font-semibold">
-                  {isOverTarget ? "Over Target!" : "On Track"}
-                </span>
-              </div>
-              <span className="text-sm text-muted-foreground">
-                {current} / {monthlyTarget} kg CO₂
-              </span>
-            </div>
-            <div className="relative h-8 bg-muted rounded-full overflow-hidden">
-              <div 
-                className={`absolute top-0 left-0 h-full rounded-full transition-all duration-700 ease-out ${
-                  isOverTarget ? 'bg-destructive' : 'bg-primary'
-                }`}
-                style={{ width: `${progressPercent}%` }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center text-sm font-medium">
-                {isOverTarget ? (
-                  <span className="text-destructive-foreground">{Math.round((current / monthlyTarget) * 100)}% of target</span>
-                ) : (
-                  <span>{Math.round(progressPercent)}% used</span>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-between mt-3 text-sm">
-              <span className="text-muted-foreground">Remaining: <span className="font-medium text-foreground">{remaining.toFixed(1)} kg</span></span>
-              <span className={`font-medium ${isOverTarget ? 'text-destructive' : 'text-primary'}`}>
-                {isOverTarget ? `${(current - monthlyTarget).toFixed(1)} kg over` : `${((remaining / monthlyTarget) * 100).toFixed(0)}% left`}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="hover-scale cursor-pointer transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -182,42 +142,7 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-          <Card className="hover-scale cursor-pointer transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.25s' }}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Remaining Budget</p>
-                  <p className={`text-2xl font-bold ${isOverTarget ? 'text-destructive' : ''}`}>
-                    {isOverTarget ? `-${(current - monthlyTarget).toFixed(1)}` : remaining.toFixed(1)} kg CO₂
-                  </p>
-                </div>
-                <Leaf className={`h-8 w-8 transition-transform hover:scale-110 ${isOverTarget ? 'text-destructive' : 'text-primary'}`} />
-              </div>
-            </CardContent>
-          </Card>
         </div>
-
-        {/* Target vs Current Comparison */}
-        <Card className="mb-8 transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <CardHeader><CardTitle>Target vs Current Emissions</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={120}>
-              <BarChart data={comparisonData} layout="vertical">
-                <XAxis type="number" domain={[0, Math.max(monthlyTarget, current) * 1.1]} />
-                <YAxis type="category" dataKey="name" width={60} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                  formatter={(value: number) => [`${value} kg CO₂`, '']}
-                />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={800} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.35s' }}>
