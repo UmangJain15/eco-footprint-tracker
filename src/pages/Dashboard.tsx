@@ -37,6 +37,11 @@ export default function Dashboard() {
     { month: "Current", transport: emissions.transport, waste: emissions.waste, energy: emissions.energy },
   ];
 
+  const targetVsEmissionsData = [
+    { name: "Target", value: monthlyTarget, fill: "hsl(142, 55%, 35%)" },
+    { name: "Current", value: current, fill: isOverTarget ? "hsl(0, 84%, 60%)" : "hsl(199, 89%, 48%)" },
+  ];
+
   const handleClearEmissions = () => {
     clearAllEmissions();
     toast({
@@ -119,7 +124,24 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Warning Alert when over target */}
+        {isOverTarget && (
+          <Card className="mb-6 border-destructive bg-destructive/10 animate-fade-in">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <AlertTriangle className="h-8 w-8 text-destructive animate-pulse" />
+                <div>
+                  <p className="font-bold text-destructive">Warning: CO₂ Limit Exceeded!</p>
+                  <p className="text-sm text-destructive/80">
+                    Your emissions ({current} kg) have exceeded your monthly target ({monthlyTarget} kg) by {(current - monthlyTarget).toFixed(2)} kg.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="hover-scale cursor-pointer transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -136,13 +158,57 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm">Current Emissions</p>
-                  <p className="text-2xl font-bold">{current} kg CO₂</p>
+                  <p className={`text-2xl font-bold ${isOverTarget ? 'text-destructive' : ''}`}>{current} kg CO₂</p>
                 </div>
-                <TrendingDown className="h-8 w-8 text-primary transition-transform hover:scale-110" />
+                <TrendingDown className={`h-8 w-8 transition-transform hover:scale-110 ${isOverTarget ? 'text-destructive' : 'text-primary'}`} />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover-scale cursor-pointer transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.25s' }}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-muted-foreground text-sm">Target Progress</p>
+                  <p className={`text-2xl font-bold ${isOverTarget ? 'text-destructive' : 'text-primary'}`}>{progressPercent.toFixed(1)}%</p>
+                </div>
+                <Leaf className={`h-8 w-8 transition-transform hover:rotate-12 ${isOverTarget ? 'text-destructive' : 'text-primary'}`} />
+              </div>
+              <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${isOverTarget ? 'bg-destructive' : 'bg-primary'}`}
+                  style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                />
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Target vs Emissions Chart */}
+        <Card className="mb-6 transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <CardHeader><CardTitle>Target vs Current Emissions</CardTitle></CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={targetVsEmissionsData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" unit=" kg" />
+                <YAxis dataKey="name" type="category" width={80} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                  formatter={(value: number) => [`${value} kg CO₂`, '']}
+                />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                  {targetVsEmissionsData.map((entry, index) => (
+                    <Cell key={index} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.35s' }}>
