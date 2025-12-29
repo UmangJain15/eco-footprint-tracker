@@ -34,6 +34,7 @@ export default function Signup() {
   const validateName = (value: string) => {
     if (!value.trim()) return "Name is required";
     if (value.trim().length < 2) return "Name must be at least 2 characters";
+    if (!/^[a-zA-Z\s]+$/.test(value.trim())) return "Name can only contain letters and spaces";
     return "";
   };
 
