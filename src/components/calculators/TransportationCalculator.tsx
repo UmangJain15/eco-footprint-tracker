@@ -13,15 +13,14 @@ import { useEmissions } from "@/context/EmissionsContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const vehicleTypes = ["Car", "Bike", "Bus", "Train", "Motorcycle"];
+const vehicleTypes = ["Car", "Bike", "Bus", "Scooter"];
 const fuelTypes = ["Petrol", "Diesel", "Electric", "CNG", "Hybrid"];
 
 const emissionFactors: Record<string, Record<string, number>> = {
   Car: { Petrol: 0.21, Diesel: 0.27, Electric: 0.05, CNG: 0.16, Hybrid: 0.12 },
   Bike: { Petrol: 0, Diesel: 0, Electric: 0, CNG: 0, Hybrid: 0 },
   Bus: { Petrol: 0.089, Diesel: 0.101, Electric: 0.02, CNG: 0.07, Hybrid: 0.06 },
-  Train: { Petrol: 0.041, Diesel: 0.041, Electric: 0.02, CNG: 0.03, Hybrid: 0.03 },
-  Motorcycle: { Petrol: 0.103, Diesel: 0.12, Electric: 0.02, CNG: 0.08, Hybrid: 0.07 },
+  Scooter: { Petrol: 0.08, Diesel: 0.09, Electric: 0.015, CNG: 0.06, Hybrid: 0.05 },
 };
 
 export function TransportationCalculator() {
