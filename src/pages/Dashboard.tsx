@@ -37,10 +37,6 @@ export default function Dashboard() {
     { month: "Current", transport: emissions.transport, waste: emissions.waste, energy: emissions.energy },
   ];
 
-  const targetVsEmissionsData = [
-    { name: "Target", value: monthlyTarget, fill: "hsl(142, 55%, 35%)" },
-    { name: "Current", value: current, fill: isOverTarget ? "hsl(0, 84%, 60%)" : "hsl(199, 89%, 48%)" },
-  ];
 
   const handleClearEmissions = () => {
     clearAllEmissions();
@@ -183,30 +179,63 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Target vs Emissions Chart */}
-        <Card className="mb-6 transition-shadow hover:shadow-lg animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        {/* Target vs Emissions Comparison */}
+        <Card className="mb-6 transition-shadow hover:shadow-lg animate-fade-in overflow-hidden" style={{ animationDelay: '0.3s' }}>
           <CardHeader><CardTitle>Target vs Current Emissions</CardTitle></CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={targetVsEmissionsData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" unit=" kg" />
-                <YAxis dataKey="name" type="category" width={80} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                  formatter={(value: number) => [`${value} kg CO₂`, '']}
-                />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                  {targetVsEmissionsData.map((entry, index) => (
-                    <Cell key={index} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Target Card */}
+              <div className="flex-1 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-3xl p-6 border border-green-500/20 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center">
+                    <Target className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground font-medium">Monthly Target</p>
+                    <p className="text-2xl font-bold text-green-600">{monthlyTarget} kg</p>
+                  </div>
+                </div>
+                <div className="h-3 bg-green-500/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full" style={{ width: '100%' }} />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Your goal for this month</p>
+              </div>
+
+              {/* Current Emissions Card */}
+              <div className={`flex-1 rounded-3xl p-6 border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+                isOverTarget 
+                  ? 'bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20' 
+                  : 'bg-gradient-to-br from-sky-500/10 to-sky-600/5 border-sky-500/20'
+              }`}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                    isOverTarget ? 'bg-red-500/20' : 'bg-sky-500/20'
+                  }`}>
+                    <Leaf className={`h-6 w-6 ${isOverTarget ? 'text-red-600' : 'text-sky-600'}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground font-medium">Current Emissions</p>
+                    <p className={`text-2xl font-bold ${isOverTarget ? 'text-red-600' : 'text-sky-600'}`}>{current} kg</p>
+                  </div>
+                </div>
+                <div className={`h-3 rounded-full overflow-hidden ${isOverTarget ? 'bg-red-500/20' : 'bg-sky-500/20'}`}>
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isOverTarget 
+                        ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                        : 'bg-gradient-to-r from-sky-500 to-sky-600'
+                    }`} 
+                    style={{ width: `${Math.min(progressPercent, 100)}%` }} 
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {isOverTarget 
+                    ? `${(current - monthlyTarget).toFixed(1)} kg over target` 
+                    : `${(monthlyTarget - current).toFixed(1)} kg remaining`
+                  }
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
