@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { AlertTriangle, Calculator, Car, CalendarIcon } from "lucide-react";
+import { AlertTriangle, Calculator, Car, CalendarIcon, Leaf, Train, Bike, Wrench, Users, Zap } from "lucide-react";
 import { useEmissions } from "@/context/EmissionsContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,39 @@ const emissionFactors: Record<string, Record<string, number>> = {
   Bus: { Petrol: 0.089, Diesel: 0.101, Electric: 0.02, CNG: 0.07, Hybrid: 0.06 },
   Scooter: { Petrol: 0.08, Diesel: 0.09, Electric: 0.015, CNG: 0.06, Hybrid: 0.05 },
 };
+
+const sustainabilityTips = [
+  {
+    icon: Train,
+    title: "Use Public Transport",
+    description: "Switch to buses, trains, or metro for daily commutes. Public transport can reduce your carbon footprint by up to 45%.",
+  },
+  {
+    icon: Bike,
+    title: "Consider Cycling",
+    description: "For short distances, cycling is emission-free and great for your health. Even 2-3 days a week makes a difference.",
+  },
+  {
+    icon: Users,
+    title: "Carpool When Possible",
+    description: "Share rides with colleagues or neighbors. Carpooling can cut your per-person emissions by 50-75%.",
+  },
+  {
+    icon: Zap,
+    title: "Switch to Electric",
+    description: "Electric vehicles produce significantly lower emissions. Consider hybrid as a transition step.",
+  },
+  {
+    icon: Wrench,
+    title: "Regular Maintenance",
+    description: "Keep your vehicle well-maintained. Proper tire pressure and timely servicing can improve fuel efficiency by 10-15%.",
+  },
+  {
+    icon: Leaf,
+    title: "Eco-Driving Habits",
+    description: "Avoid aggressive acceleration, maintain steady speeds, and reduce idling to save fuel and reduce emissions.",
+  },
+];
 
 export function TransportationCalculator() {
   const [vehicleType, setVehicleType] = useState("");
@@ -128,12 +161,54 @@ export function TransportationCalculator() {
         </Button>
 
         {result !== null && (
-          <Card className="bg-muted">
-            <CardContent className="pt-6 text-center">
-              <p className="text-muted-foreground">Monthly CO₂ Emissions</p>
-              <p className="text-4xl font-display font-bold text-primary">{result} kg</p>
-            </CardContent>
-          </Card>
+          <>
+            <Card className="bg-muted">
+              <CardContent className="pt-6 text-center">
+                <p className="text-muted-foreground">Monthly CO₂ Emissions</p>
+                <p className="text-4xl font-display font-bold text-primary">{result} kg</p>
+              </CardContent>
+            </Card>
+
+            {/* Sustainability Tips Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-lg font-semibold text-primary">
+                <Leaf className="h-5 w-5" />
+                <span>Tips to Reduce Your Carbon Footprint</span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sustainabilityTips.map((tip, index) => (
+                  <Card 
+                    key={index} 
+                    className="group hover:shadow-lg transition-all duration-300 border-primary/10 hover:border-primary/30 bg-gradient-to-br from-background to-muted/50"
+                  >
+                    <CardContent className="pt-5 pb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                          <tip.icon className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-semibold text-sm">{tip.title}</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {tip.description}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <Alert className="border-primary/20 bg-primary/5">
+                <Leaf className="h-4 w-4 text-primary" />
+                <AlertTitle className="text-primary">Every Action Counts!</AlertTitle>
+                <AlertDescription>
+                  Small changes in your daily commute can lead to significant reductions in your carbon footprint. 
+                  Start with one tip today and gradually adopt more sustainable practices.
+                </AlertDescription>
+              </Alert>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
