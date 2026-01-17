@@ -1,17 +1,31 @@
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Car, Trash2, Zap, Factory, Database, Calculator, Plane, Utensils, ShoppingBag, Droplets, Building2 } from "lucide-react";
+import { Car, Trash2, Zap, Database, Calculator, Bike, Bus } from "lucide-react";
+import { PiMotorcycleFill } from "react-icons/pi";
 
 export default function Learn() {
-  const sources = [
-    { icon: Car, title: "Transportation", desc: "Emissions from burning fuel in vehicles. Calculated using distance × fuel consumption × emission factor.", factor: "0.21 kg CO₂/km for petrol cars" },
-    { icon: Plane, title: "Air Travel", desc: "Emissions from aviation fuel combustion during flights. Includes radiative forcing effects.", factor: "0.255 kg CO₂/km for economy class" },
-    { icon: Trash2, title: "Waste", desc: "Emissions from decomposition and processing of waste materials.", factor: "Varies by material: 6kg/kg for plastic, 0.5kg/kg for organic" },
-    { icon: Zap, title: "Energy", desc: "Emissions from electricity generation and fuel combustion at home.", factor: "0.82 kg CO₂/kWh for electricity" },
-    { icon: Utensils, title: "Food & Diet", desc: "Emissions from food production, processing, transportation, and storage.", factor: "2.5 kg CO₂/kg for beef, 0.9 kg CO₂/kg for chicken" },
-    { icon: ShoppingBag, title: "Shopping & Goods", desc: "Emissions from manufacturing, packaging, and shipping consumer products.", factor: "Varies: 20 kg CO₂ for a pair of jeans" },
-    { icon: Droplets, title: "Water Usage", desc: "Emissions from water treatment, pumping, and heating.", factor: "0.34 kg CO₂ per 1000 liters treated" },
-    { icon: Building2, title: "Housing & Construction", desc: "Emissions from building materials, heating, cooling, and maintenance.", factor: "50 kg CO₂/m² for concrete construction" },
+  // Transportation - Vehicle Types (matching Track CO2)
+  const transportCategories = [
+    { icon: Car, title: "Car", desc: "Emissions vary by fuel type. Petrol, diesel, electric, CNG, and hybrid options available.", factor: "Petrol: 0.21, Diesel: 0.27, Electric: 0.05, CNG: 0.16, Hybrid: 0.12 kg CO₂/km" },
+    { icon: Bike, title: "Bike (Bicycle)", desc: "Zero-emission transportation. Cycling produces no direct CO₂ emissions.", factor: "0 kg CO₂/km (emission-free)" },
+    { icon: Bus, title: "Bus", desc: "Public transport with shared emissions per passenger. More efficient than individual vehicles.", factor: "Petrol: 0.089, Diesel: 0.101, Electric: 0.02 kg CO₂/km per person" },
+    { title: "Scooter", desc: "Two-wheeler with lower emissions than cars. Popular for short-distance commutes.", factor: "Petrol: 0.08, Diesel: 0.09, Electric: 0.015 kg CO₂/km", isScooter: true },
+  ];
+
+  // Waste Categories (matching Track CO2)
+  const wasteCategories = [
+    { name: "Plastic", factor: "6.0 kg CO₂/kg", tip: "Reduce single-use plastics and recycle" },
+    { name: "Paper", factor: "1.1 kg CO₂/kg", tip: "Go digital and recycle paper products" },
+    { name: "Organic", factor: "0.5 kg CO₂/kg", tip: "Compost food waste at home" },
+    { name: "Metal", factor: "1.5 kg CO₂/kg", tip: "Recycle aluminum and steel cans" },
+    { name: "E-waste", factor: "20.0 kg CO₂/kg", tip: "Donate or recycle electronics properly" },
+  ];
+
+  // Energy Categories (matching Track CO2)
+  const energyCategories = [
+    { name: "Electricity", factor: "0.82 kg CO₂/kWh", desc: "Grid electricity from power plants" },
+    { name: "LPG/Gas", factor: "2.98 kg CO₂/kg", desc: "Cooking and heating fuel" },
+    { name: "Renewable Energy", factor: "70% reduction", desc: "Solar panels, wind power reduce emissions" },
   ];
 
   return (
@@ -35,21 +49,60 @@ export default function Learn() {
             </CardContent>
           </Card>
 
-          <h2 className="text-2xl font-display font-bold mb-6">Emission Categories</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            {sources.map((src, i) => (
+          {/* Transportation Section */}
+          <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-2">
+            <Car className="h-6 w-6 text-primary" /> Transportation
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 mb-8">
+            {transportCategories.map((item, i) => (
               <Card key={i} className="shadow-card">
                 <CardContent className="pt-5 pb-5">
                   <div className="flex gap-4">
                     <div className="p-3 rounded-xl bg-primary/10 h-fit">
-                      <src.icon className="h-6 w-6 text-primary" />
+                      {item.isScooter ? (
+                        <PiMotorcycleFill className="h-6 w-6 text-primary" />
+                      ) : item.icon ? (
+                        <item.icon className="h-6 w-6 text-primary" />
+                      ) : null}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-display font-semibold mb-2">{src.title}</h3>
-                      <p className="text-muted-foreground text-sm mb-3">{src.desc}</p>
-                      <p className="text-xs font-mono bg-muted p-2 rounded-md">{src.factor}</p>
+                      <h3 className="text-lg font-display font-semibold mb-2">{item.title}</h3>
+                      <p className="text-muted-foreground text-sm mb-3">{item.desc}</p>
+                      <p className="text-xs font-mono bg-muted p-2 rounded-md">{item.factor}</p>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Waste Section */}
+          <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-2">
+            <Trash2 className="h-6 w-6 text-primary" /> Waste
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+            {wasteCategories.map((item, i) => (
+              <Card key={i} className="shadow-card">
+                <CardContent className="pt-5 pb-5">
+                  <h3 className="text-lg font-display font-semibold mb-2">{item.name}</h3>
+                  <p className="text-xs font-mono bg-muted p-2 rounded-md mb-2">{item.factor}</p>
+                  <p className="text-muted-foreground text-sm">{item.tip}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Energy Section */}
+          <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-2">
+            <Zap className="h-6 w-6 text-primary" /> Energy
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3 mb-8">
+            {energyCategories.map((item, i) => (
+              <Card key={i} className="shadow-card">
+                <CardContent className="pt-5 pb-5">
+                  <h3 className="text-lg font-display font-semibold mb-2">{item.name}</h3>
+                  <p className="text-xs font-mono bg-muted p-2 rounded-md mb-2">{item.factor}</p>
+                  <p className="text-muted-foreground text-sm">{item.desc}</p>
                 </CardContent>
               </Card>
             ))}
