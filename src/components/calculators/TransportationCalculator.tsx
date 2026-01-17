@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { format } from "date-fns";
+import { useState, useEffect } from "react";
+import { format, differenceInMonths } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertTriangle, Calculator, Car, CalendarIcon, Leaf, Train, Bike, Wrench, Users, Zap } from "lucide-react";
 import { useEmissions } from "@/context/EmissionsContext";
 import { toast } from "@/hooks/use-toast";
@@ -63,9 +64,20 @@ export function TransportationCalculator() {
   const [lastService, setLastService] = useState<Date | undefined>();
   const [distance, setDistance] = useState("");
   const [result, setResult] = useState<number | null>(null);
+  const [showServiceWarning, setShowServiceWarning] = useState(false);
   const { setTransportEmissions } = useEmissions();
 
   const isOldVehicle = parseInt(vehicleAge) >= 15;
+
+  // Check if last service is more than 6 months ago
+  useEffect(() => {
+    if (lastService) {
+      const monthsSinceService = differenceInMonths(new Date(), lastService);
+      if (monthsSinceService > 6) {
+        setShowServiceWarning(true);
+      }
+    }
+  }, [lastService]);
 
   const calculateEmissions = () => {
     if (!vehicleType || !fuelType || !distance) {
@@ -94,6 +106,34 @@ export function TransportationCalculator() {
         <CardTitle className="flex items-center gap-2"><Car className="h-5 w-5" /> Transportation Emissions</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Service Warning Popup */}
+        <Dialog open={showServiceWarning} onOpenChange={setShowServiceWarning}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <Wrench className="h-5 w-5" /> Vehicle Service Overdue!
+              </DialogTitle>
+              <DialogDescription className="pt-4 space-y-3">
+                <p>
+                  Your vehicle hasn't been serviced in over <strong>6 months</strong>. Regular maintenance is crucial for:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Reducing CO₂ emissions by up to 15%</li>
+                  <li>Improving fuel efficiency</li>
+                  <li>Ensuring vehicle safety</li>
+                  <li>Preventing costly repairs</li>
+                </ul>
+                <p className="text-primary font-medium">
+                  Please schedule a service appointment soon!
+                </p>
+              </DialogDescription>
+            </DialogHeader>
+            <Button onClick={() => setShowServiceWarning(false)} className="w-full">
+              I'll Schedule a Service
+            </Button>
+          </DialogContent>
+        </Dialog>
+
         {isOldVehicle && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
